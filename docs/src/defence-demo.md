@@ -74,8 +74,8 @@ And then the design decision worth defending:
 
 Run the verification script — faster and more convincing than clicking:
 
-```bash
-bash scripts/verify-guidelines-api.sh
+```powershell
+wsl -d Ubuntu -- bash /mnt/c/Source/ite4120/scripts/verify-guidelines-api.sh
 ```
 
 Ten checks scroll past. Point at three of them:
@@ -151,3 +151,4 @@ you did not collect.
 | Backend will not start on Windows | `SocketException: Invalid argument` | "This machine cannot open a loopback socket from the Windows side — it kills Tomcat, Docker Desktop and Gradle alike. I build and run from WSL." |
 | Frontend shows no rows | backend not up yet | reload after a few seconds; the list fetches on mount |
 | `401` from the registry | mock not permitted in the security chain | already fixed in commit `3b44c55` — mention it as a bug the end-to-end check caught that reading the code did not |
+| `pintf: command not found` | an old `tr -d ""` wrapper, no longer needed | run the script directly; `.gitattributes` now keeps it LF |

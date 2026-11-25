@@ -43,6 +43,14 @@ auth:
   mock:
     enabled: false
 
+guidelines:
+  approver-registry:
+    # http (default) — plain HTTP+JSON against `url`; xroad — a security server.
+    mode: http
+    url: http://localhost:18440/mock-approver-registry
+    # The built-in imitated registry; enabled only in the local profile.
+    mock-server: false
+
 animals:
   owner-registry:
     # http (default) — plain HTTPS+JSON against `url`; xroad — forge-xroad transport.

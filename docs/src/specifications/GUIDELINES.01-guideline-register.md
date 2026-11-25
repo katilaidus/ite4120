@@ -19,7 +19,7 @@ Excluded: the guideline text itself (the register links to a document, it does
 not store one), the drafting and approval workflow, indicator definitions, and
 authentication management (mock auth only).
 
-## Data model  *(→ changesets 01–03)*
+## Data model  *(→ changesets 01–04)*
 
 | Table | Field | Type | Rules |
 | --- | --- | --- | --- |
@@ -29,6 +29,7 @@ authentication management (mock auth only).
 | | `code` | text | required; registry code, e.g. `PJ-I/4.3-2026`; **unique among active rows** |
 | | `title` | text | required, ≤500 |
 | | `domain_code` | text | required; FK → `domain` |
+| | `document_type` | text | required; RAVIJUHEND, PATSIENDIJUHEND, SELTSI_JUHEND, TEGEVUSJUHEND — added by changeset 04 |
 | | `published_on` | date | required; **not in the future** |
 | | `approver_isikukood` | text | optional; exactly 11 digits — a string, never a number |
 | | `source_url` | text | optional, ≤1000 |
@@ -44,6 +45,15 @@ authentication management (mock auth only).
 years before today. An unknown date cannot occur (the field is required), so the
 answer is always defined.
 
+**Why the document type exists.** A national clinical guideline is not the only
+document that tells a clinician what to do. The national register publishes
+`RJ-` (clinical guideline) and `PJ-` (patient guideline); the specialist
+societies publish their own, unnumbered. In two of the four domains under study
+— radiology and cervical cancer — **the society document is the only one that
+exists**. A register that admitted national guidelines alone would report those
+domains as empty while clinicians are in fact working from something, which
+would be a false answer to the coordinator's question.
+
 **A note from the real data.** In the national register, a guideline code is
 shared by the main guideline and its patient-facing companions — `PJ-M/39.2-2026`
 appears three times with three different titles. This register requires the code
@@ -54,7 +64,7 @@ the guideline, not its derived publications.
 
 | Method + path | Does | Failure answers |
 | --- | --- | --- |
-| `GET /api/guidelines` | paged search: `textContains`, `domainCode`, `overdueOnly`, `limit`, `offset`, `sort` | — |
+| `GET /api/guidelines` | paged search: `textContains`, `domainCode`, `documentType`, `overdueOnly`, `limit`, `offset`, `sort` | — |
 | `GET /api/guidelines/{id}` | one active guideline | 404 |
 | `POST /api/guidelines` | register; answers **201 + Location** | 400 validation · 409 duplicate code |
 | `PUT /api/guidelines/{id}` | update; code immutable | 400 · 404 |
@@ -83,7 +93,7 @@ so no external system can prevent the register from answering its main question.
 
 | Screen | Element | Component | Rules |
 | --- | --- | --- | --- |
-| Guideline list `/guidelines` | table | `ResourceList` | columns: code (locked, **a link to the guideline's page**), title, domain tag, published, overdue flag; search field; filter by domain; toggle "only overdue" |
+| Guideline list `/guidelines` | table | `ResourceList` | columns: code (locked, **a link to the guideline's page**), title, domain tag, document type, published, overdue flag; search field; filters by domain and document type; toggle "only overdue" |
 | | register button | `AppButtonPrimary` | navigates to the form |
 | | overdue cell | `Tag` | red when overdue, neutral otherwise — the derived field, never editable |
 | Guideline page `/guidelines/{id}` | view / edit | `ResourceForm` + `useDataController` | sections Identity (code read-only, title, domain) and Details (published date, approver code, source URL); Edit → Save is `PUT`, Cancel restores; Retire is the soft `DELETE` with confirmation |
@@ -93,6 +103,7 @@ so no external system can prevent the register from answering its main question.
 | Register form | code | `Input` | required, ≤50 |
 | | title | `Input` | required, ≤500 |
 | | domain | `Select` | required, options from `/domains` |
+| | document type | `Select` | required: RAVIJUHEND, PATSIENDIJUHEND, SELTSI_JUHEND, TEGEVUSJUHEND |
 | | published date | `DatePicker` | required, not in the future |
 | | approver code | `Input` | pattern `\d{11}` |
 | | submit | `AppButtonPrimary` | 400/409 problem text shown verbatim in a notification |

@@ -18,4 +18,10 @@
   <include file="guidelines/db/changelog/guidelines/03-recommendation.sql"/>
   <include file="guidelines/db/changelog/guidelines/90-demo-data.sql"/>
 
+  <!-- Later additions. 01-03 and 90 have already run against live databases,
+       so they are immutable: the document type arrives as its own changeset,
+       after them, and backfills the rows they created. -->
+  <include file="guidelines/db/changelog/guidelines/04-guideline-add-document-type.sql"/>
+  <include file="guidelines/db/changelog/guidelines/91-demo-society-documents.sql"/>
+
 </databaseChangeLog>

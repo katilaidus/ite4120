@@ -5,6 +5,14 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { AppButton, AppCard, AppTag, useAppNotification } from '@helex/ui';
 import { guidelinesApi, type DomainReview } from './api';
 
+/** English names for the domains; the database keeps the Estonian ones. */
+const DOMAIN_LABEL: Record<string, string> = {
+  CARDIOLOGY: 'Cardiology',
+  PROSTATE: 'Prostate disease',
+  RADIOLOGY: 'Radiology',
+  CERVIX: 'Cervical cancer',
+};
+
 /**
  * The review report — the component's reporting view, backed by the one query
  * that joins all three tables.
@@ -24,28 +32,33 @@ export const ReviewReport = () => {
     guidelinesApi
       .reviewReport()
       .then(setRows)
-      .catch((e) => notify.error('Raporti laadimine ebaõnnestus', e.message))
+      .catch((e) => notify.error('Could not load the report', e.message))
       .finally(() => setLoading(false));
   }, [notify]);
 
   const columns = [
-    { key: 'domainName', title: 'Valdkond', dataIndex: 'domainName' },
+    {
+      key: 'domainName',
+      title: 'Domain',
+      dataIndex: 'domainName',
+      render: (name: string, row: DomainReview) => DOMAIN_LABEL[row.domainCode] ?? name,
+    },
     {
       key: 'guidelineCount',
-      title: 'Dokumente',
+      title: 'Documents',
       dataIndex: 'guidelineCount',
-      render: (n: number) => (n === 0 ? <AppTag color="red">puudub</AppTag> : n),
+      render: (n: number) => (n === 0 ? <AppTag color="red">none</AppTag> : n),
     },
     {
       key: 'overdueCount',
-      title: 'Ülevaatuse tähtaeg ületatud',
+      title: 'Overdue for review',
       dataIndex: 'overdueCount',
       render: (n: number) => (n > 0 ? <AppTag color="red">{n}</AppTag> : n),
     },
-    { key: 'recommendationCount', title: 'Soovitusi', dataIndex: 'recommendationCount' },
+    { key: 'recommendationCount', title: 'Recommendations', dataIndex: 'recommendationCount' },
     {
       key: 'oldestPublishedOn',
-      title: 'Vanim dokument',
+      title: 'Oldest document',
       dataIndex: 'oldestPublishedOn',
       render: (d?: string) => d ?? '—',
     },
@@ -54,10 +67,10 @@ export const ReviewReport = () => {
   return (
     <div style={{ display: 'grid', gap: 16 }}>
       <AppButton icon={<ArrowLeftOutlined />} onClick={() => navigate('/guidelines')}>
-        Tagasi nimekirja
+        Back to the list
       </AppButton>
 
-      <AppCard title="Ülevaatuse raport valdkondade kaupa">
+      <AppCard title="Review report by clinical domain">
         <Table
           rowKey="domainCode"
           loading={loading}
@@ -66,9 +79,10 @@ export const ReviewReport = () => {
           pagination={false}
         />
         <div style={{ marginTop: 12, opacity: 0.7, fontSize: 13 }}>
-          Ülevaatuse tähtaeg arvutatakse avaldamiskuupäevast ravijuhendi käsiraamatu
-          nelja-aastase nõude järgi. Valdkond, kus dokumente ei ole, jääb raportisse
-          nulliga — tühjus on siin vastus, mitte puuduv rida.
+          The review deadline is derived from the publication date, against the
+          four-year rule in the Estonian guideline handbook. A domain with no
+          documents stays in this report showing zero — the emptiness is the
+          answer, not a missing row.
         </div>
       </AppCard>
     </div>

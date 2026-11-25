@@ -21,3 +21,4 @@ backend/src/main/resources/library/
 frontend/src/pages/library/
 docs/src/user-stories/LIBRARY-*
 docs/src/specifications/LIBRARY.*
+bin/

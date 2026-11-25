@@ -70,12 +70,12 @@ Then scroll to the bottom, to **`## Business tests`**:
 - Thirteen real documents from the Estonian register. The codes are genuine:
   `RJ-` is a national clinical guideline, `PJ-` a patient guideline, and
   `EKS-`/`ENS-`/`ERY-`/`EUS-` are specialist-society documents.
-- The **Ülevaatus** column is **derived, not stored** — the backend computes it
+- The **Review** column is **derived, not stored** — the backend computes it
   from the publication date on every read. A stored flag would be wrong the day
   after it was written.
 - Filter by domain, or switch on "only overdue".
 
-**The report** — click *Ülevaatuse raport*
+**The report** — click *Review report*
 
 This is the reporting operation, and the one query that joins all three tables.
 Say the finding out loud:
@@ -193,8 +193,8 @@ If you want the source alongside it, the file is
 Two lines from the same script output:
 
 ```
-8. X-ROAD: kinnitaja registrist   → 200  {"firstName":"Jaan","lastName":"Tamm"}
-9. X-ROAD TORGE                   → 502  ...aga juhend ise 200, raport 200
+8. X-ROAD: approver from the registry  -> 200  {"firstName":"Jaan","lastName":"Tamm"}
+9. X-ROAD FAILURE                      -> 502  ...but the guideline 200, the report 200
 ```
 
 Say:
@@ -212,7 +212,7 @@ Say:
 
 ### 6 · Close  *(1 min)*
 
-Seven commits, all under my own name. Six tests green against a real PostgreSQL
+Fourteen commits, all under my own name. Six tests green against a real PostgreSQL
 via Testcontainers — which also proves the migrations replay clean from empty.
 The specification matches what was built.
 
@@ -254,5 +254,4 @@ you did not collect.
 | Backend will not start on Windows | `SocketException: Invalid argument` | "This machine cannot open a loopback socket from the Windows side — it kills Tomcat, Docker Desktop and Gradle alike. I build and run from WSL." |
 | Frontend shows no rows | backend not up yet | reload after a few seconds; the list fetches on mount |
 | `401` from the registry | mock not permitted in the security chain | already fixed in commit `3b44c55` — mention it as a bug the end-to-end check caught that reading the code did not |
-| `pintf: command not found` | an old `tr -d "
-"` wrapper, no longer needed | run the script directly; `.gitattributes` now keeps it LF |
+| `pintf: command not found` | an old CRLF wrapper, no longer needed | run the script directly; `.gitattributes` keeps scripts LF now |

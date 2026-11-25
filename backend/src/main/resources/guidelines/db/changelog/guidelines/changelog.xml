@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The guidelines component changelog — the clinical guideline register.
+
+  Order matters: the schema first, then the reference table the business table
+  points at, then the business table, then its child. A released changeset is
+  IMMUTABLE — never edit one that has run, append a new one instead.
+-->
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <include file="guidelines/db/changelog/guidelines/guidelines-schema.sql"/>
+  <include file="guidelines/db/changelog/guidelines/01-domain.sql"/>
+  <include file="guidelines/db/changelog/guidelines/02-guideline.sql"/>
+  <include file="guidelines/db/changelog/guidelines/03-recommendation.sql"/>
+  <include file="guidelines/db/changelog/guidelines/90-demo-data.sql"/>
+
+</databaseChangeLog>

@@ -11,3 +11,4 @@
 - [User story · GUIDELINES-US-001](user-stories/GUIDELINES-US-001.md)
 - [Specification · GUIDELINES.01](specifications/GUIDELINES.01-guideline-register.md)
 - [Work diary · Kati Laidus](work-diary/kati-laidus.md)
+- [Defence demo](defence-demo.md)

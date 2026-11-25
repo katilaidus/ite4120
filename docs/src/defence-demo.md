@@ -1,0 +1,153 @@
+# Defence demo — GUIDELINES.01
+
+Ten minutes plus questions, in English, 27.11.
+
+## Before you start
+
+Three things must be running. Give yourself ten minutes for this — the
+backend takes about five to start on this machine.
+
+```bash
+# 1. database
+bash scripts/reset-db.sh          # only if it is not already up
+
+# 2. backend  (from WSL — the Windows side cannot open a socket here)
+wsl -d Ubuntu -- bash -lc "cd /mnt/c/Source/ite4120/backend && GRADLE_USER_HOME='/mnt/c/Users/Kati Laidus/.gradle' ./gradlew --no-daemon bootRun --args='--spring.profiles.active=local'"
+
+# 3. frontend  (from Windows PowerShell)
+cd C:\Source\ite4120\frontend; npm run dev
+```
+
+Open two browser tabs before you speak: `http://localhost:18640/guidelines`
+and `http://localhost:18440/swagger-ui.html`.
+
+---
+
+## The ten minutes
+
+### 1 · The problem  *(1 min — say this, do not show anything)*
+
+Estonian clinical guidelines are published as PDFs. The handbook requires every
+guideline to be reviewed at least every four years. Nothing computes that date,
+so in practice nobody tracks it.
+
+My doctoral work measures four clinical domains. This component is the smallest
+useful thing that answers one question automatically: **which guidelines are
+past their review deadline, and in which domain is the gap worst.**
+
+### 2 · The specification came first  *(1 min)*
+
+Show `docs/src/specifications/GUIDELINES.01-guideline-register.md`.
+
+Point at the **Business tests** section at the bottom and say: these two
+sentences were written before any code, and they are now two of the six
+executable tests. That is the course method, not decoration.
+
+### 3 · The application  *(3 min — the main event)*
+
+**The list** — `/guidelines`
+
+- Thirteen real documents from the Estonian register. The codes are genuine:
+  `RJ-` is a national clinical guideline, `PJ-` a patient guideline, and
+  `EKS-`/`ENS-`/`ERY-`/`EUS-` are specialist-society documents.
+- The **Ülevaatus** column is **derived, not stored** — the backend computes it
+  from the publication date on every read. A stored flag would be wrong the day
+  after it was written.
+- Filter by domain, or switch on "only overdue".
+
+**The report** — click *Ülevaatuse raport*
+
+This is the reporting operation, and the one query that joins all three tables.
+Say the finding out loud:
+
+> Radiology has two documents and **both are past the review deadline**.
+> Cardiology has seven and four are overdue — including a lipid guideline from
+> **2001**.
+
+And then the design decision worth defending:
+
+> A domain with no documents at all stays in this report showing zero. It would
+> have been easy to drop empty rows, and it would have hidden exactly what a
+> coordinator needs to see.
+
+### 4 · The API  *(2 min)*
+
+Run the verification script — faster and more convincing than clicking:
+
+```bash
+bash scripts/verify-guidelines-api.sh
+```
+
+Ten checks scroll past. Point at three of them:
+
+- `POST → 201` with a **Location header** — the one everybody forgets
+- `400` and `404` come back as **`application/problem+json`**, never HTML,
+  never a stack trace
+- `409` when a code is already taken by an active guideline
+
+### 5 · X-Road  *(2 min — the strongest part)*
+
+Two lines from the same script output:
+
+```
+8. X-ROAD: kinnitaja registrist   → 200  {"firstName":"Jaan","lastName":"Tamm"}
+9. X-ROAD TORGE                   → 502  ...aga juhend ise 200, raport 200
+```
+
+Say:
+
+> The register stores only the approver's personal code. The name belongs to
+> the population register, so it is fetched live through an adapter — mock
+> here, X-Road-shaped in production. The adapter interface does not change when
+> the transport does.
+>
+> And the failure is deliberate: personal code `00000000000` always fails, so I
+> can demonstrate it. The registry outage answers 502 on that one endpoint, and
+> **nowhere else**. The guideline and the report keep working, because the
+> register computes its main answer from a date it owns. No external system can
+> stop it answering that.
+
+### 6 · Close  *(1 min)*
+
+Seven commits, all under my own name. Six tests green against a real PostgreSQL
+via Testcontainers — which also proves the migrations replay clean from empty.
+The specification matches what was built.
+
+---
+
+## The four questions you will be asked
+
+**Why is the overdue flag not stored?**
+Because it would be wrong the day after it was written. It is a function of the
+publication date and today's date, so it is computed on read. The rule lives in
+one place — `Guideline.isOverdue(publishedOn, today)` — and the list filter and
+the report both use that same constant.
+
+**Why do empty domains stay in the report?**
+Both joins are LEFT and both are filtered in the ON clause. A filter in the
+WHERE clause would silently turn it back into an inner join and drop them. In
+my data two domains have no *national* guideline at all, and that absence is
+the finding, not a missing row.
+
+**Why fail open?**
+The approver's name is auxiliary. The review deadline — the thing this register
+exists to compute — comes from a date the register owns. Letting a registry
+outage take down the whole page would make an external system's availability
+into my register's availability, for no benefit. For an eligibility check
+before dispensing medication the answer would be the opposite: fail closed.
+
+**Why store only the personal code and not the name?**
+One source of truth per fact. The population register owns names; a copy here
+goes stale the day someone marries, and it is personal data I would then have
+to protect, correct and erase. The easiest personal data to protect is the data
+you did not collect.
+
+---
+
+## If something breaks during the demo
+
+| Symptom | Cause | What to say |
+|---|---|---|
+| Backend will not start on Windows | `SocketException: Invalid argument` | "This machine cannot open a loopback socket from the Windows side — it kills Tomcat, Docker Desktop and Gradle alike. I build and run from WSL." |
+| Frontend shows no rows | backend not up yet | reload after a few seconds; the list fetches on mount |
+| `401` from the registry | mock not permitted in the security chain | already fixed in commit `3b44c55` — mention it as a bug the end-to-end check caught that reading the code did not |

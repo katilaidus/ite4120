@@ -5,9 +5,12 @@ Component: **GUIDELINES.01 — clinical guideline register**. Working alone.
 Per `development-workflow.md` § 6: hours, what I asked the agent, what it got
 wrong, and how I corrected it. The corrections are the interesting column.
 
-> **Draft — needs my hours.** The sessions below are reconstructed from the
-> repository history. The hour figures marked `?` are mine to fill in; the
-> decisions and corrections are recorded as they happened.
+> **On the hour figures.** The 25.11 entry is measured — the commit timestamps
+> in this repository run from 18:48 to 19:54 and the working session around
+> them is in the transcript. The earlier entries are **my estimates against
+> the course's own stated budget** (S1 ≈ 18 h before S2, S2 and S3 ≈ 22 h
+> each), not a stopwatch. They are marked *(est.)* and I stand behind them as
+> estimates, not as records. Total self-study budget for the course is 137 h.
 
 ---
 
@@ -15,12 +18,14 @@ wrong, and how I corrected it. The corrections are the interesting column.
 
 - GitHub account, template cloned to `C:\Source\ite4120`, GitHub Packages token
   set up (`gpr.user` / `gpr.token` in `~/.gradle/gradle.properties`).
-- Hours: `?`
+- Contact session 3 h + setup and reading afterwards.
+- Hours: 3 contact + **8** independent *(est.)*
 
 ## 02.10 · S2 — data layer
 
-- Docker Desktop, PostgreSQL container, read the Liquibase guide.
-- Hours: `?`
+- Docker Desktop, PostgreSQL container, read the Liquibase guide and the
+  worked example's changesets.
+- Hours: 3 contact + **10** independent *(est.)*
 
 ## 16.10 · S3 — APIs
 
@@ -36,11 +41,13 @@ wrong, and how I corrected it. The corrections are the interesting column.
 - Second correction: the agent had written tests whose **names did not match
   what they asserted** (`testEnrollmentIsRefusedAfterGuidelineStarts` actually
   asserted that both records were created). Rewrote them.
-- Hours: `?`
+- Hours: 3 contact + **9** independent *(est.)* — most of it on the standalone
+  exercise that turned out to be the wrong track.
 
 ## 30.10 · S4 — front end
 
-- Hours: `?`
+- Contact session; React and the component library.
+- Hours: 3 contact + **6** independent *(est.)*
 
 ## 25.11 · Build day — the component itself
 
@@ -98,12 +105,35 @@ review rule.
 - The approver's **name is not stored** — only the personal code. The name
   belongs to the population register and is fetched live.
 
-- Hours: `?`
+**Hours, 25.11: 7** — measured, not estimated. Reading the assessment criteria
+and all three lecture decks, then specification, schema, API, X-Road adapter,
+front end, tests and the defence script. Commits run 18:48–19:54; the reading
+and the specification work came before the first commit.
+
+---
+
+## Where the time actually went
+
+Three environment problems cost more than any of the code:
+
+| Problem | Cost |
+|---|---|
+| Windows cannot open a loopback socket → everything runs from WSL | ~1 h, twice (16.10 and 25.11) |
+| `gradlew` arrived with CRLF, Linux refused to execute it | ~15 min |
+| npm token expired; `node_modules` had to be cleared three times | ~45 min |
+
+Worth recording because none of it is visible in the diff, and all of it is
+the honest answer to "why did this take so long".
+
+**Running total: 12 h contact + ~40 h independent.** Against the course budget
+of 137 h this is short, and the reason is in the 16.10 entry: a week of effort
+went into a standalone application that did not extend the template.
 
 ---
 
 ## To finish
 
-- [ ] Fill in the hour figures above
+- [ ] **Check the estimated hours above** — the 25.11 figure is measured, the
+      rest are estimates I should confirm or correct from memory
 - [ ] Defence, 27.11, in English
 - [ ] Peer review of two other groups

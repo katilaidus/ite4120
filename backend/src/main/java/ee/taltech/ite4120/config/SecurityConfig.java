@@ -40,6 +40,10 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/mock-registry/**").permitAll()
+                        // The guidelines component's imitated registry, same reasoning:
+                        // it stands in for an EXTERNAL system, so its adapter must reach
+                        // it the way it would reach a real one — without our session.
+                        .requestMatchers("/mock-approver-registry/**").permitAll()
                         // The frontend's MockAuthProvider probes these before it has a
                         // session; the platform permits them pre-auth, and so do we. With
                         // no controller behind them they 404, which the provider treats

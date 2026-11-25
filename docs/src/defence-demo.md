@@ -37,11 +37,22 @@ past their review deadline, and in which domain is the gap worst.**
 
 ### 2 · The specification came first  *(1 min)*
 
-Show `docs/src/specifications/GUIDELINES.01-guideline-register.md`.
+Two files, both in VS Code. Open them **before** you start speaking:
 
-Point at the **Business tests** section at the bottom and say: these two
-sentences were written before any code, and they are now two of the six
-executable tests. That is the course method, not decoration.
+```
+docs/src/user-stories/GUIDELINES-US-001.md        ← one page: As a / I want / so that
+docs/src/specifications/GUIDELINES.01-guideline-register.md
+```
+
+In the Explorer that is `docs` → `src` → `user-stories` and `docs` → `src` →
+`specifications`. Both folders already hold an `ANIMALS.*` file from the
+template; yours is the `GUIDELINES.*` one directly beneath it.
+
+Start with the user story (ten seconds — who needs this and why), then the
+specification. Scroll the specification to the bottom, to **`## Business
+tests`**, and say: these two sentences were written before any code, and they
+are now two of the six executable tests. That is the course method, not
+decoration.
 
 ### 3 · The application  *(3 min — the main event)*
 
@@ -84,6 +95,31 @@ Ten checks scroll past. Point at three of them:
 - `400` and `404` come back as **`application/problem+json`**, never HTML,
   never a stack trace
 - `409` when a code is already taken by an active guideline
+
+### 4b · The tests are green  *(1 min)*
+
+Do **not** run `./gradlew test` live — it takes about seven minutes, because
+every test class starts its own PostgreSQL through Testcontainers.
+
+Show the report that the last run already produced. Open in the browser:
+
+```
+file:///C:/Source/ite4120/backend/build/reports/tests/test/index.html
+```
+
+It says **6 tests, 0 failures, 0 ignored**. Then say what that run also proves:
+
+> Each of these ran against a real PostgreSQL in a throwaway container, so the
+> same run proves the Liquibase changelog applies cleanly to an empty database.
+> The schema is not something I built by hand once — it is rebuilt from the
+> migrations every time.
+
+If you want the source alongside it, the file is
+`backend/src/test/java/ee/taltech/ite4120/guidelines/GuidelineBusinessRulesIT.java`
+— every test there quotes the specification.
+
+**Keep that report.** It lives under `build/`, which is gitignored, so running
+`./gradlew clean` would delete it. Do not clean before the defence.
 
 ### 5 · X-Road  *(2 min — the strongest part)*
 
@@ -151,4 +187,5 @@ you did not collect.
 | Backend will not start on Windows | `SocketException: Invalid argument` | "This machine cannot open a loopback socket from the Windows side — it kills Tomcat, Docker Desktop and Gradle alike. I build and run from WSL." |
 | Frontend shows no rows | backend not up yet | reload after a few seconds; the list fetches on mount |
 | `401` from the registry | mock not permitted in the security chain | already fixed in commit `3b44c55` — mention it as a bug the end-to-end check caught that reading the code did not |
-| `pintf: command not found` | an old `tr -d ""` wrapper, no longer needed | run the script directly; `.gitattributes` now keeps it LF |
+| `pintf: command not found` | an old `tr -d "
+"` wrapper, no longer needed | run the script directly; `.gitattributes` now keeps it LF |

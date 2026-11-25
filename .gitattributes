@@ -1,0 +1,14 @@
+# Shell scripts and the Gradle wrapper must keep LF endings on every platform.
+# Checked out with CRLF they are not executable from WSL or Linux at all:
+# bash reports "/bin/sh^M: bad interpreter", and a CRLF script piped through a
+# shell loses the last character of every line.
+*.sh            text eol=lf
+gradlew         text eol=lf
+
+# Liquibase changesets are compared by checksum; a line-ending change would
+# invalidate every changeset that has already run.
+*.sql           text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.cmd           text eol=crlf
+*.bat           text eol=crlf

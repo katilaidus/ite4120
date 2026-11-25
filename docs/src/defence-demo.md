@@ -49,10 +49,19 @@ In the Explorer that is `docs` → `src` → `user-stories` and `docs` → `src`
 template; yours is the `GUIDELINES.*` one directly beneath it.
 
 Start with the user story (ten seconds — who needs this and why), then the
-specification. Scroll the specification to the bottom, to **`## Business
-tests`**, and say: these two sentences were written before any code, and they
-are now two of the six executable tests. That is the course method, not
-decoration.
+specification. Four places in it are worth pointing at, in this order:
+
+| Where | What to say |
+|---|---|
+| The line under the title: *traces from GUIDELINES-US-001* | "Every spec names its story. Walk that link in either direction and you can see which requirement a piece of code exists for." |
+| **Data model**, the note *"Why the document type exists"* | "A national guideline is not the only document that tells a clinician what to do. In two of my four domains the society document is the only one there is — so a register that admitted national guidelines alone would report those domains as empty while clinicians are working from something." |
+| **Data model**, the note *"A note from the real data"* | "In the real register one code is shared by a guideline and its patient companions — `PJ-M/39.2-2026` appears three times. I require the code to be unique, which is a deliberate simplification, and I wrote down that it is one." |
+| **API**, the *Failure policy* paragraph | "The fail-open decision is in the specification, not discovered in the code. It is a specification decision, as the lecture put it." |
+
+Then scroll to the bottom, to **`## Business tests`**:
+
+> These two sentences were written before any code. They are now two of the
+> six executable tests. Spec first, tests second, implementation third.
 
 ### 3 · The application  *(3 min — the main event)*
 
@@ -113,20 +122,46 @@ If you want to show the changesets themselves, they are in VS Code under
 > changeset 04 instead of editing 02 — because 02 had already run on a live
 > database, and editing it would have made the history a lie.
 
-### 4 · The API  *(2 min)*
+### 4 · The API  *(2.5 min)*
 
-Run the verification script — faster and more convincing than clicking:
+**First the contract, for thirty seconds.** Open
+`http://localhost:18440/swagger-ui.html` and scroll to the **Guidelines**
+section — six endpoints.
+
+> This page is generated from the controllers by springdoc, so it cannot drift
+> from the code. It is not documentation I maintain; it is the contract, and
+> this is how an integration partner would explore my API before writing a
+> single line of client code.
+
+The application is titled "Animals Register" because that is the template's
+name — my component lives inside the same application, which is what the
+assignment asks for. Worth saying out loud before anyone wonders.
+
+**Then the script** — faster and more convincing than clicking:
 
 ```powershell
 wsl -d Ubuntu -- bash /mnt/c/Source/ite4120/scripts/verify-guidelines-api.sh
 ```
 
-Ten checks scroll past. Point at three of them:
+Ten checks scroll past. **Five of them send deliberately broken requests** —
+say so, because a screen full of 400s and 404s looks like failure unless you
+name it:
 
-- `POST → 201` with a **Location header** — the one everybody forgets
-- `400` and `404` come back as **`application/problem+json`**, never HTML,
-  never a stack trace
-- `409` when a code is already taken by an active guideline
+| # | What the script sends | What the API must answer |
+|---|---|---|
+| 3 | a valid new guideline | **201** + a `Location` header — the one everybody forgets |
+| 4 | id `999999`, which does not exist | **404**, as a problem document |
+| 5 | publication date in 2099 | **400** — *"publishedOn must not be in the future"* |
+| 6 | domain `KARDIOLOOGIA`, not in the list | **400**, naming the allowed values |
+| 7 | a code already taken by an active guideline | **409** |
+| 9 | personal code `00000000000` | **502**, and nothing else breaks |
+
+> The second half of this script is deliberately broken requests. Every one
+> comes back as a problem document with the right status, in
+> `application/problem+json` — never HTML, never a stack trace, because a stack
+> trace tells an attacker my framework, my versions and my internal structure.
+>
+> Showing only the happy path would prove nothing about the error model.
 
 ### 4b · The tests are green  *(1 min)*
 

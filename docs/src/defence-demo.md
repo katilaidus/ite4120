@@ -81,6 +81,38 @@ And then the design decision worth defending:
 > have been easy to drop empty rows, and it would have hidden exactly what a
 > coordinator needs to see.
 
+### 3b · The data layer  *(1.5 min)*
+
+This is a graded criterion on its own, so show it rather than mention it.
+
+```powershell
+wsl -d Ubuntu -- bash /mnt/c/Source/ite4120/scripts/verify-guidelines-db.sh
+```
+
+Four blocks scroll past. Say one sentence about each:
+
+1. **Three tables** in their own schema — `domain`, `guideline`,
+   `recommendation`.
+2. **Two foreign keys** — a recommendation cannot exist without its guideline,
+   and the database enforces that, not hopeful application code.
+3. **The Liquibase record.** Nine changesets, each with its author and the date
+   it ran.
+
+   > This is the point. The schema was not typed into a console — every table
+   > came from a version-controlled migration, in order, and Liquibase keeps the
+   > record. Drop the database and run it again and you get exactly this schema
+   > back. That is also what the test run proves, against an empty container.
+
+4. **The join** the report is built on, straight from SQL.
+
+If you want to show the changesets themselves, they are in VS Code under
+`backend/src/main/resources/guidelines/db/changelog/guidelines/`. Worth opening
+`04-guideline-add-document-type.sql` for ten seconds:
+
+> A released changeset is immutable. When I needed a new column, I added
+> changeset 04 instead of editing 02 — because 02 had already run on a live
+> database, and editing it would have made the history a lie.
+
 ### 4 · The API  *(2 min)*
 
 Run the verification script — faster and more convincing than clicking:
